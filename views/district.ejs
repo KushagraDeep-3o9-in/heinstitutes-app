@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { metaDescription }) %>
+<body>
+  <main class="container">
+    <%- include('partials/breadcrumb', { items: [
+      { name: 'Home', url: SITE_ORIGIN + '/india-heinstitutes' },
+      { name: stateName, url: SITE_ORIGIN + buildStateUrl(stateName) },
+      { name: districtName, url: canonicalUrl }
+    ] }) %>
+
+    <h1>Higher Education Institutes in <%= districtName %>, <%= stateName %></h1>
+
+    <%- include('partials/adslot', { slotId: '3333333333' }) %>
+
+    <ul class="institute-list">
+      <% institutes.forEach(function(inst) { %>
+        <li>
+          <a href="<%= buildInstituteUrl(inst) %>"><%= inst.name %></a>
+          <span class="meta"><%= inst.institutionType || '' %><%= inst.yearOfEstablishment ? ' · Est. ' + inst.yearOfEstablishment : '' %></span>
+        </li>
+      <% }); %>
+    </ul>
+
+    <% if (totalPages > 1) { %>
+    <nav class="pagination" aria-label="pagination">
+      <% if (page > 1) { %><a href="<%= buildDistrictUrl(stateName, districtName) %>?page=<%= page - 1 %>">&laquo; Prev</a><% } %>
+      <span>Page <%= page %> of <%= totalPages %></span>
+      <% if (page < totalPages) { %><a href="<%= buildDistrictUrl(stateName, districtName) %>?page=<%= page + 1 %>">Next &raquo;</a><% } %>
+    </nav>
+    <% } %>
+  </main>
+</body>
+</html>

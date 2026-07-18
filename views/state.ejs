@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { metaDescription }) %>
+<body>
+  <main class="container">
+    <%- include('partials/breadcrumb', { items: [
+      { name: 'Home', url: SITE_ORIGIN + '/india-heinstitutes' },
+      { name: stateName, url: canonicalUrl }
+    ] }) %>
+
+    <h1>Higher Education Institutes in <%= stateName %></h1>
+    <p>Browse <%= districts.reduce((s, x) => s + x.count, 0).toLocaleString() %> institutes across <%= districts.length %> districts in <%= stateName %>.</p>
+
+    <%- include('partials/adslot', { slotId: '2222222222' }) %>
+
+    <ul class="district-grid">
+      <% districts.forEach(function(d) { %>
+        <li>
+          <a href="<%= buildDistrictUrl(stateName, d._id) %>"><%= d._id %></a>
+          <span class="count"><%= d.count.toLocaleString() %> institutes</span>
+        </li>
+      <% }); %>
+    </ul>
+  </main>
+</body>
+</html>

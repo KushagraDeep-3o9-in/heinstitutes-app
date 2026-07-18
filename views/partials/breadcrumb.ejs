@@ -1,0 +1,9 @@
+<nav class="breadcrumb" aria-label="breadcrumb">
+  <% items.forEach(function(item, i) { %>
+    <% if (i === items.length - 1) { %>
+      <span aria-current="page"><%= item.name %></span>
+    <% } else { %>
+      <a href="<%= item.url %>"><%= item.name %></a> <span class="sep">/</span>
+    <% } %>
+  <% }); %>
+</nav>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { metaDescription }) %>
+<body>
+  <script type="application/ld+json"><%- jsonLdFaq %></script>
+  <script type="application/ld+json"><%- jsonLdBreadcrumb %></script>
+
+  <main class="container">
+    <%- include('partials/breadcrumb', { items: [
+      { name: 'Home', url: SITE_ORIGIN + '/india-heinstitutes' },
+      { name: 'Browse by Programme', url: SITE_ORIGIN + '/india-heinstitutes/programs' },
+      { name: programme, url: canonicalUrl }
+    ] }) %>
+
+    <h1><%= programme %></h1>
+    <p class="subtitle"><%= level ? level + ' · ' : '' %><% if (disciplineUrl) { %><a href="<%= disciplineUrl %>"><%= discipline %></a><% } else { %><%= discipline || '' %><% } %></p>
+
+    <p class="intro"><%= description %></p>
+
+    <section class="info-grid">
+      <div><strong>Institutes Offering</strong><span><%= stats.instituteCount.toLocaleString() %></span></div>
+      <div><strong>States Covered</strong><span><%= stats.stateCount %></span></div>
+      <div><strong>Total Seat Intake</strong><span><%= stats.totalIntake > 0 ? stats.totalIntake.toLocaleString() : 'Not available' %></span></div>
+      <div><strong>Duration</strong><span><%= stats.durationRange || 'Not available' %></span></div>
+    </section>
+
+    <% if (categoryBreakdown.length > 0) { %>
+    <h2>Institute Type</h2>
+    <ul class="stat-bars">
+      <% categoryBreakdown.forEach(function(c) { %>
+        <li>
+          <div class="stat-row">
+            <span class="stat-label"><%= c.label %></span>
+            <span class="stat-value"><%= c.count.toLocaleString() %> institute<%= c.count === 1 ? '' : 's' %> (<%= c.percent %>%)</span>
+          </div>
+          <div class="stat-bar-track"><div class="stat-bar-fill" style="width: <%= c.percent %>%"></div></div>
+        </li>
+      <% }); %>
+    </ul>
+    <% } %>
+
+    <% if (stats.courseTypeBreakdown.length > 0) { %>
+    <h2>Funding Type</h2>
+    <ul class="stat-bars">
+      <% stats.courseTypeBreakdown.forEach(function(c) { %>
+        <li>
+          <div class="stat-row">
+            <span class="stat-label"><%= c.label %></span>
+            <span class="stat-value"><%= c.count.toLocaleString() %> offering<%= c.count === 1 ? '' : 's' %> (<%= c.percent %>%)</span>
+          </div>
+          <div class="stat-bar-track"><div class="stat-bar-fill" style="width: <%= c.percent %>%"></div></div>
+        </li>
+      <% }); %>
+    </ul>
+    <% } %>
+
+    <% if (stats.modeBreakdown.length > 0) { %>
+    <h2>Mode of Study</h2>
+    <ul class="stat-bars">
+      <% stats.modeBreakdown.forEach(function(m) { %>
+        <li>
+          <div class="stat-row">
+            <span class="stat-label"><%= m.label %></span>
+            <span class="stat-value"><%= m.count.toLocaleString() %> offering<%= m.count === 1 ? '' : 's' %> (<%= m.percent %>%)</span>
+          </div>
+          <div class="stat-bar-track"><div class="stat-bar-fill" style="width: <%= m.percent %>%"></div></div>
+        </li>
+      <% }); %>
+    </ul>
+    <% } %>
+
+    <p><%= total.toLocaleString() %> institute<%= total === 1 ? '' : 's' %> shown below<%= activeCategory ? ' (filtered by ' + CATEGORY_MAP[activeCategory].label + ')' : '' %>.</p>
+
+    <div class="filter-chips">
+      <a class="chip<%= !activeCategory ? ' active' : '' %>" href="<%= basePath %>">All (<%= Object.values(categoryCounts).reduce((a,b)=>a+b,0).toLocaleString() %>)</a>
+      <% Object.keys(CATEGORY_MAP).forEach(function(code) { %>
+        <a class="chip<%= activeCategory === code ? ' active' : '' %>" href="<%= basePath %>?category=<%= code %>">
+          <%= CATEGORY_MAP[code].label %> (<%= categoryCounts[code].toLocaleString() %>)
+        </a>
+      <% }); %>
+    </div>
+
+    <%- include('partials/adslot', { slotId: '8888888888' }) %>
+
+    <ul class="institute-list">
+      <% institutesWithCategory.forEach(function(inst) { %>
+        <li>
+          <a href="<%= buildInstituteUrl(inst) %>"><%= inst.name %></a>
+          <span class="meta"><%= inst.category.label %> &middot; <%= inst.districtName %>, <%= inst.stateName %></span>
+        </li>
+      <% }); %>
+    </ul>
+
+    <% if (totalPages > 1) { %>
+    <nav class="pagination" aria-label="pagination">
+      <% const qs = activeCategory ? `?category=${activeCategory}&page=` : '?page='; %>
+      <% if (page > 1) { %><a href="<%= basePath %><%= qs %><%= page - 1 %>">&laquo; Prev</a><% } %>
+      <span>Page <%= page %> of <%= totalPages %></span>
+      <% if (page < totalPages) { %><a href="<%= basePath %><%= qs %><%= page + 1 %>">Next &raquo;</a><% } %>
+    </nav>
+    <% } %>
+
+    <% if (faqs.length > 0) { %>
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-list">
+      <% faqs.forEach(function(f) { %>
+      <details>
+        <summary><%= f.q %></summary>
+        <p><%= f.a %></p>
+      </details>
+      <% }); %>
+    </div>
+    <% } %>
+
+    <p class="disclaimer">Data sourced from the All India Survey on Higher Education (AISHE). Seat intake and duration figures are as reported by institutes; verify current numbers with the institute directly before applying.</p>
+  </main>
+</body>
+</html>

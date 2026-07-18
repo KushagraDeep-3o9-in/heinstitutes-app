@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { metaDescription }) %>
+<body>
+  <script type="application/ld+json"><%- jsonLdCollege %></script>
+  <script type="application/ld+json"><%- jsonLdBreadcrumb %></script>
+  <script type="application/ld+json"><%- jsonLdFaq %></script>
+
+  <main class="container">
+    <%- include('partials/breadcrumb', { items: [
+      { name: 'Home', url: SITE_ORIGIN + '/india-heinstitutes' },
+      { name: inst.stateName, url: SITE_ORIGIN + buildStateUrl(inst.stateName) },
+      { name: inst.districtName, url: SITE_ORIGIN + buildDistrictUrl(inst.stateName, inst.districtName) },
+      { name: inst.name, url: canonicalUrl }
+    ] }) %>
+
+    <h1><%= inst.name %></h1>
+    <p class="subtitle"><%= categoryLabel(inst.aisheCode) %> &middot; <%= inst.districtName %>, <%= inst.stateName %> &middot; AISHE Code: <%= inst.aisheCode %></p>
+
+    <p class="intro">
+      <%= inst.name %> is a<%= /^[aeiou]/i.test(inst.institutionType || '') ? 'n' : '' %>
+      <%= (inst.institutionType || 'higher education institution').toLowerCase() %>
+      <% if (inst.manegement) { %> under <%= inst.manegement %> management<% } %>
+      located in <%= inst.districtName %>, <%= inst.stateName %><% if (inst.yearOfEstablishment) { %>,
+      established in <%= inst.yearOfEstablishment %><% } %>.
+      <% if (programs.length > 0) { %>
+        It offers <%= programs.length %> program<%= programs.length > 1 ? 's' : '' %> as recorded in AISHE data.
+      <% } %>
+      <% if (inst.location) { %>It is situated in a<%= /^[aeiou]/i.test(inst.location) ? 'n' : '' %> <%= inst.location.toLowerCase() %> area.<% } %>
+    </p>
+
+    <nav class="more-links" aria-label="browse more institutes">
+      <a href="<%= buildDistrictUrl(inst.stateName, inst.districtName) %>">More colleges in <%= inst.districtName %></a>
+      <span class="sep">·</span>
+      <a href="<%= buildStateUrl(inst.stateName) %>">More colleges in <%= inst.stateName %></a>
+      <span class="sep">·</span>
+      <a href="/india-heinstitutes">More colleges in India</a>
+    </nav>
+
+    <% if (categoryContext && categoryContext.districtCount > 0) { %>
+    <p class="context-stat">One of <strong><%= categoryContext.districtCount.toLocaleString() %></strong> <%= categoryContext.label %><%= categoryContext.districtCount === 1 ? '' : 's' %> in <%= inst.districtName %> district &middot; one of <strong><%= categoryContext.stateCount.toLocaleString() %></strong> in <%= inst.stateName %></p>
+    <% } %>
+
+    <%- include('partials/adslot', { slotId: '4444444444' }) %>
+
+    <section class="info-grid">
+      <div><strong>Institution Type</strong><span><%= inst.institutionType || 'Not available' %></span></div>
+      <div><strong>Management</strong><span><%= inst.manegement || 'Not available' %></span></div>
+      <div><strong>Location</strong><span><%= inst.location || 'Not available' %></span></div>
+      <div><strong>Year Established</strong><span><%= inst.yearOfEstablishment || 'Not available' %></span></div>
+      <% if (inst.universityName) { %>
+      <div><strong>Affiliated University</strong><span><%= inst.universityName %></span></div>
+      <% } %>
+      <div><strong>Address</strong><span><%= inst.address1 || 'Not available' %></span></div>
+      <% if (inst.webSite) { %>
+      <div><strong>Website</strong><span><a rel="nofollow noopener" target="_blank" href="<%= String(inst.webSite).replace(/[\[\]]/g,'').split('(').pop().replace(')','') %>"><%= inst.webSite %></a></span></div>
+      <% } %>
+    </section>
+
+    <% if (programs.length > 0) { %>
+    <h2>Courses &amp; Programs Offered</h2>
+    <div class="table-wrap">
+      <table class="programs-table">
+        <thead>
+          <tr>
+            <th>Programme</th>
+            <th>Level</th>
+            <th>Discipline</th>
+            <th>Duration</th>
+            <th>Intake</th>
+            <th>Mode</th>
+            <th>Course Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% programs.forEach(function(p) { %>
+          <tr>
+            <td><%= p.programme || '-' %></td>
+            <td><%= p.level || '-' %></td>
+            <td><% if (p.disciplineUrl) { %><a href="<%= p.disciplineUrl %>"><%= p.discipline %></a><% } else { %><%= p.discipline || '-' %><% } %></td>
+            <td><%= [p.durationYear && p.durationYear + 'y', p.durationMonth && p.durationMonth !== '0' ? p.durationMonth + 'm' : null].filter(Boolean).join(' ') || '-' %></td>
+            <td><%= p.intake || '-' %></td>
+            <td><%= p.mode || '-' %></td>
+            <td><%= p.courseType || '-' %></td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+
+    <%- include('partials/adslot', { slotId: '5555555555' }) %>
+
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-list">
+      <% faqs.forEach(function(f) { %>
+      <details>
+        <summary><%= f.q %></summary>
+        <p><%= f.a %></p>
+      </details>
+      <% }); %>
+    </div>
+
+    <p class="disclaimer">Data sourced from the All India Survey on Higher Education (AISHE). Verify critical details on the institute's official website before making decisions.</p>
+
+    <% if (relatedInstitutes && relatedInstitutes.length > 0) { %>
+    <h2>Other Institutes Nearby</h2>
+    <ul class="related-list">
+      <% relatedInstitutes.forEach(function(r) { %>
+      <li>
+        <a href="<%= buildInstituteUrl(r) %>"><%= r.name %></a>
+        <span class="meta"><%= r.districtName %>, <%= r.stateName %><%= r.institutionType ? ' · ' + r.institutionType : '' %></span>
+      </li>
+      <% }); %>
+    </ul>
+    <% } %>
+
+    <%- include('partials/adslot', { slotId: '6666666666' }) %>
+  </main>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { metaDescription }) %>
+<body>
+  <main class="container">
+    <%- include('partials/breadcrumb', { items: [
+      { name: 'Home', url: SITE_ORIGIN + '/india-heinstitutes' },
+      { name: 'Browse by Discipline', url: canonicalUrl }
+    ] }) %>
+
+    <h1>Browse Institutes by Discipline</h1>
+    <p><%= total.toLocaleString() %> disciplines on file. Pick one to see every institute offering it, filterable by University, College, or Standalone Institution.</p>
+
+    <%- include('partials/adslot', { slotId: '9999999991' }) %>
+
+    <ul class="programme-list">
+      <% disciplines.forEach(function(d) { %>
+        <li>
+          <a href="/india-heinstitutes/disciplines/<%= encodeURIComponent(d.raw) %>"><%= d.display %></a>
+          <span class="meta"><%= d.count.toLocaleString() %> institutes</span>
+        </li>
+      <% }); %>
+    </ul>
+
+    <% if (totalPages > 1) { %>
+    <nav class="pagination" aria-label="pagination">
+      <% if (page > 1) { %><a href="/india-heinstitutes/disciplines?page=<%= page - 1 %>">&laquo; Prev</a><% } %>
+      <span>Page <%= page %> of <%= totalPages %></span>
+      <% if (page < totalPages) { %><a href="/india-heinstitutes/disciplines?page=<%= page + 1 %>">Next &raquo;</a><% } %>
+    </nav>
+    <% } %>
+  </main>
+</body>
+</html>
