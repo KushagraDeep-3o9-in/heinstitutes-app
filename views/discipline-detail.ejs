@@ -6,22 +6,29 @@
   <script type="application/ld+json"><%- jsonLdBreadcrumb %></script>
 
   <main class="container">
-    <%- include('partials/breadcrumb', { items: [
-      { name: 'Home', url: SITE_ORIGIN + '/india-heinstitutes' },
-      { name: 'Browse by Discipline', url: SITE_ORIGIN + '/india-heinstitutes/disciplines' },
-      { name: discipline, url: canonicalUrl }
-    ] }) %>
+    <%- include('partials/breadcrumb', { items: breadcrumbItems }) %>
 
-    <h1><%= discipline %></h1>
+    <h1><%= discipline %><% if (locationLabel) { %> in <%= locationLabel %><% } %></h1>
 
     <p class="intro"><%= description %></p>
 
     <section class="info-grid">
       <div><strong>Institutes Offering</strong><span><%= stats.instituteCount.toLocaleString() %></span></div>
-      <div><strong>States Covered</strong><span><%= stats.stateCount %></span></div>
+      <% if (secondaryStatLabel) { %>
+      <div><strong><%= secondaryStatLabel %></strong><span><%= stats.stateCount %></span></div>
+      <% } %>
       <div><strong>Total Seat Intake</strong><span><%= stats.totalIntake > 0 ? stats.totalIntake.toLocaleString() : 'Not available' %></span></div>
       <div><strong>Duration</strong><span><%= stats.durationRange || 'Not available' %></span></div>
     </section>
+
+    <% if (drillDownLinks && drillDownLinks.length > 0) { %>
+    <h2><%= drillDownHeading %></h2>
+    <ul class="related-list">
+      <% drillDownLinks.forEach(function(l) { %>
+        <li><a href="<%= l.url %>"><%= l.label %></a><span class="meta"><%= l.count.toLocaleString() %> institute<%= l.count === 1 ? '' : 's' %></span></li>
+      <% }); %>
+    </ul>
+    <% } %>
 
     <% if (categoryBreakdown.length > 0) { %>
     <h2>Institute Type</h2>

@@ -38,6 +38,8 @@ router.get('/sitemap.xml', async (req, res, next) => {
       `<sitemap><loc>${SITE_ORIGIN}/india-heinstitutes/sitemap-hub.xml</loc><lastmod>${today}</lastmod></sitemap>`,
       `<sitemap><loc>${SITE_ORIGIN}/india-heinstitutes/sitemap-programs.xml</loc><lastmod>${today}</lastmod></sitemap>`,
       `<sitemap><loc>${SITE_ORIGIN}/india-heinstitutes/sitemap-disciplines.xml</loc><lastmod>${today}</lastmod></sitemap>`,
+      `<sitemap><loc>${SITE_ORIGIN}/india-heinstitutes/sitemap-program-locations.xml</loc><lastmod>${today}</lastmod></sitemap>`,
+      `<sitemap><loc>${SITE_ORIGIN}/india-heinstitutes/sitemap-discipline-locations.xml</loc><lastmod>${today}</lastmod></sitemap>`,
       ...states
         .filter(Boolean)
         .map(
@@ -128,6 +130,88 @@ router.get('/sitemap-disciplines.xml', async (req, res, next) => {
 
     const xml = urlsetXml(urls);
     cache.set('sitemap-disciplines', xml);
+    res.type('application/xml').send(xml);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ---------- Programme x State combo pages ("Where can I study X in Y?") ----------
+// Uses $lookup (a server-side join) rather than pulling both collections
+// into Node memory - this combo set can get large (programmes x states that
+// actually have at least one institute), so pushing the work to MongoDB
+// keeps it scalable. Capped defensively at 45,000 URLs (under the 50k
+// per-sitemap limit) - if the real combo count ever exceeds that, this
+// needs chunking into sitemap-program-locations-2.xml etc.
+router.get('/sitemap-program-locations.xml', async (req, res, next) => {
+  try {
+    const cached = cache.get('sitemap-program-locations');
+    if (cached) {
+      res.type('application/xml');
+      return res.send(cached);
+    }
+
+    const combos = await Program.aggregate([
+      { $match: { programmeId: { $ne: null }, aisheCode: { $ne: null } } },
+      { $group: { _id: { programmeId: '$programmeId', aisheCode: '$aisheCode' } } },
+      {
+        $lookup: {
+          from: 'heinstitutes',
+          localField: '_id.aisheCode',
+          foreignField: 'aisheCode',
+          as: 'inst',
+        },
+      },
+      { $unwind: '$inst' },
+      { $match: { 'inst.stateName': { $ne: null } } },
+      { $group: { _id: { programmeId: '$_id.programmeId', state: '$inst.stateName' } } },
+      { $limit: 45000 },
+    ]);
+
+    const urls = combos.map((c) => ({
+      loc: `${SITE_ORIGIN}/india-heinstitutes/programs/${encodeURIComponent(c._id.programmeId)}/${encodeURIComponent(c._id.state)}`,
+    }));
+
+    const xml = urlsetXml(urls);
+    cache.set('sitemap-program-locations', xml);
+    res.type('application/xml').send(xml);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ---------- Discipline x State combo pages ----------
+router.get('/sitemap-discipline-locations.xml', async (req, res, next) => {
+  try {
+    const cached = cache.get('sitemap-discipline-locations');
+    if (cached) {
+      res.type('application/xml');
+      return res.send(cached);
+    }
+
+    const combos = await Program.aggregate([
+      { $match: { discipline: { $nin: [null, ''] }, aisheCode: { $ne: null } } },
+      { $group: { _id: { discipline: '$discipline', aisheCode: '$aisheCode' } } },
+      {
+        $lookup: {
+          from: 'heinstitutes',
+          localField: '_id.aisheCode',
+          foreignField: 'aisheCode',
+          as: 'inst',
+        },
+      },
+      { $unwind: '$inst' },
+      { $match: { 'inst.stateName': { $ne: null } } },
+      { $group: { _id: { discipline: '$_id.discipline', state: '$inst.stateName' } } },
+      { $limit: 45000 },
+    ]);
+
+    const urls = combos.map((c) => ({
+      loc: `${SITE_ORIGIN}/india-heinstitutes/disciplines/${encodeURIComponent(c._id.discipline)}/${encodeURIComponent(c._id.state)}`,
+    }));
+
+    const xml = urlsetXml(urls);
+    cache.set('sitemap-discipline-locations', xml);
     res.type('application/xml').send(xml);
   } catch (err) {
     next(err);

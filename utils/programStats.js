@@ -187,10 +187,65 @@ function buildDisciplineFaq(disciplineName, stats, categoryCounts, categoryMap, 
   return faqs;
 }
 
+function buildLocationDescription(entityName, locationLabel, stats) {
+  const parts = [];
+  parts.push(
+    `${stats.instituteCount.toLocaleString()} institute${stats.instituteCount === 1 ? '' : 's'} in ${locationLabel} offer${
+      stats.instituteCount === 1 ? 's' : ''
+    } ${entityName}, according to AISHE data.`
+  );
+  if (stats.totalIntake > 0) {
+    parts.push(`Combined approved seat intake is ${stats.totalIntake.toLocaleString()} students per year.`);
+  }
+  if (stats.durationRange) {
+    parts.push(`Duration is ${stats.durationRange}.`);
+  }
+  return parts.join(' ');
+}
+
+function buildLocationFaq(entityName, locationLabel, stats, categoryCounts, categoryMap) {
+  const faqs = [];
+
+  faqs.push({
+    q: `Where can I study ${entityName} in ${locationLabel}?`,
+    a: `${stats.instituteCount.toLocaleString()} institute${stats.instituteCount === 1 ? '' : 's'} in ${locationLabel} offer${
+      stats.instituteCount === 1 ? 's' : ''
+    } ${entityName}, according to AISHE data.`,
+  });
+
+  if (stats.totalIntake > 0) {
+    faqs.push({
+      q: `What is the total seat intake for ${entityName} in ${locationLabel}?`,
+      a: `Institutes in ${locationLabel} offering ${entityName} have a combined approved intake of ${stats.totalIntake.toLocaleString()} seats per year.`,
+    });
+  }
+
+  const catParts = Object.keys(categoryMap)
+    .filter((code) => categoryCounts[code] > 0)
+    .map((code) => `${categoryCounts[code].toLocaleString()} ${categoryMap[code].label.toLowerCase()}${categoryCounts[code] === 1 ? '' : 's'}`);
+  if (catParts.length > 0) {
+    faqs.push({
+      q: `What types of institutions offer ${entityName} in ${locationLabel}?`,
+      a: `In ${locationLabel}: ${catParts.join(', ')} offer ${entityName}.`,
+    });
+  }
+
+  if (stats.durationRange) {
+    faqs.push({
+      q: `How long does ${entityName} take to complete in ${locationLabel}?`,
+      a: `${entityName} typically takes ${stats.durationRange} to complete, based on AISHE-reported durations across institutes in ${locationLabel}.`,
+    });
+  }
+
+  return faqs;
+}
+
 module.exports = {
   buildProgrammeStats,
   buildProgrammeDescription,
   buildProgrammeFaq,
   buildDisciplineDescription,
   buildDisciplineFaq,
+  buildLocationDescription,
+  buildLocationFaq,
 };
