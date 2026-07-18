@@ -1,9 +1,10 @@
-<% if (ADSENSE_CLIENT_ID) { %>
+<% const resolvedSlotId = typeof slotId !== 'undefined' ? slotId : ADSENSE_SLOT_ID; %>
+<% if (ADSENSE_CLIENT_ID && resolvedSlotId) { %>
 <div class="ad-slot">
   <ins class="adsbygoogle"
        style="display:block"
        data-ad-client="<%= ADSENSE_CLIENT_ID %>"
-       data-ad-slot="<%= typeof slotId !== 'undefined' ? slotId : '0000000000' %>"
+       data-ad-slot="<%= resolvedSlotId %>"
        data-ad-format="auto"
        data-full-width-responsive="true"></ins>
   <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>

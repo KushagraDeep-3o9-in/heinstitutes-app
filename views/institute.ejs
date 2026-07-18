@@ -41,7 +41,7 @@
     <p class="context-stat">One of <strong><%= categoryContext.districtCount.toLocaleString() %></strong> <%= categoryContext.label %><%= categoryContext.districtCount === 1 ? '' : 's' %> in <%= inst.districtName %> district &middot; one of <strong><%= categoryContext.stateCount.toLocaleString() %></strong> in <%= inst.stateName %></p>
     <% } %>
 
-    <%- include('partials/adslot', { slotId: '4444444444' }) %>
+    <%- include('partials/adslot') %>
 
     <section class="info-grid">
       <div><strong>Institution Type</strong><span><%= inst.institutionType || 'Not available' %></span></div>
@@ -89,7 +89,7 @@
     </div>
     <% } %>
 
-    <%- include('partials/adslot', { slotId: '5555555555' }) %>
+    <%- include('partials/adslot') %>
 
     <h2>Frequently Asked Questions</h2>
     <div class="faq-list">
@@ -115,7 +115,7 @@
     </ul>
     <% } %>
 
-    <%- include('partials/adslot', { slotId: '6666666666' }) %>
+    <%- include('partials/adslot') %>
   </main>
 </body>
 </html>

@@ -11,7 +11,7 @@
     <h1>Higher Education Institutes in <%= stateName %></h1>
     <p>Browse <%= districts.reduce((s, x) => s + x.count, 0).toLocaleString() %> institutes across <%= districts.length %> districts in <%= stateName %>.</p>
 
-    <%- include('partials/adslot', { slotId: '2222222222' }) %>
+    <%- include('partials/adslot') %>
 
     <ul class="district-grid">
       <% districts.forEach(function(d) { %>

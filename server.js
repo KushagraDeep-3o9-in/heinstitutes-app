@@ -22,7 +22,11 @@ app.use(
   })
 )
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d', etag: true }));
+// Served under /india-heinstitutes so it lands inside the path nginx
+// actually proxies to this app - serving at the bare root (the old way)
+// meant requests for /css/style.css never reached this process at all,
+// since nginx's location block only matches /india-heinstitutes/*.
+app.use('/india-heinstitutes', express.static(path.join(__dirname, 'public'), { maxAge: '7d', etag: true }));
 
 // Basic abuse protection - generous limit since this serves real search traffic
 app.use(
@@ -38,11 +42,17 @@ app.use(
 app.use((req, res, next) => {
   res.locals.SITE_ORIGIN = SITE_ORIGIN;
   res.locals.ADSENSE_CLIENT_ID = process.env.ADSENSE_CLIENT_ID || '';
+  res.locals.ADSENSE_SLOT_ID = process.env.ADSENSE_SLOT_ID || '';
   res.locals.GA_MEASUREMENT_ID = process.env.GA_MEASUREMENT_ID || '';
   res.locals.GSC_VERIFICATION = process.env.GSC_VERIFICATION || '';
   next();
 });
 
+// NOTE: nginx only proxies /india-heinstitutes/* to this app, so this route
+// is only reachable when running the app standalone (e.g. local dev hitting
+// port 3019 directly). In production, https://nearme.3o9.in/robots.txt is
+// served by your LEGACY app - add the Sitemap line below to that app's
+// robots.txt manually so crawlers find it from the domain-root file.
 app.get('/robots.txt', (req, res) => {
   res.type('text/plain').send(
     `User-agent: *\nAllow: /\nSitemap: ${SITE_ORIGIN}/india-heinstitutes/sitemap.xml\n`

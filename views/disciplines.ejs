@@ -11,7 +11,7 @@
     <h1>Browse Institutes by Discipline</h1>
     <p><%= total.toLocaleString() %> disciplines on file. Pick one to see every institute offering it, filterable by University, College, or Standalone Institution.</p>
 
-    <%- include('partials/adslot', { slotId: '9999999991' }) %>
+    <%- include('partials/adslot') %>
 
     <ul class="programme-list">
       <% disciplines.forEach(function(d) { %>
